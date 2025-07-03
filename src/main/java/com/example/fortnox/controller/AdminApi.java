@@ -1,5 +1,6 @@
 package com.example.fortnox.controller;
 
+import com.example.fortnox.controller.response.AdminRentalResponse;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -11,5 +12,5 @@ public interface AdminApi {
     String RENTALS = "/rentals";
 
     @GetMapping(RENTALS)
-    ResponseEntity<?> getAllRentals();
+    ResponseEntity<AdminRentalResponse> getAllRentals();
 }

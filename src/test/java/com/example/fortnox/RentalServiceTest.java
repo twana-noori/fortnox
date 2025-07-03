@@ -1,7 +1,6 @@
 package com.example.fortnox;
 
 import com.example.fortnox.domain.BookingType;
-import com.example.fortnox.domain.Car;
 import com.example.fortnox.domain.CarModel;
 import com.example.fortnox.domain.CarPricePeriod;
 import com.example.fortnox.domain.CreateRental;
@@ -68,7 +67,12 @@ class RentalServiceTest {
         LocalDate startDate = LocalDate.of(2024, 1, 1);
         LocalDate endDate = LocalDate.of(2024, 2, 1);
 
+        RentalPeriod period = new RentalPeriod(
+                new RentalDate(startDate),
+                new RentalDate(endDate)
+        );
         when(carModelRepository.findById(1L)).thenReturn(java.util.Optional.of(new CarModel(1L, "Brand", "Model", 2020, List.of())));
+        rentalService.getAvailableCars(period, new Id(1L));
         verify(carModelRepository).findById(1L);
         verify(carRepository).findAvailableCarsByModel(startDate, endDate, 1L);
     }

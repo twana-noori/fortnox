@@ -16,6 +16,8 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.sql.Date;
@@ -52,6 +54,7 @@ public class RentalRepository {
         }
     }
 
+    @Transactional(isolation = Isolation.SERIALIZABLE)
     public Long saveRental(final CreateRental createRental,
                            final BigDecimal revenue) {
 

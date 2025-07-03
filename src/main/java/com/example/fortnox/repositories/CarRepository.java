@@ -9,6 +9,7 @@ import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -26,11 +27,6 @@ public class CarRepository {
                          CarModelRepository carModelRepository) {
         this.jdbc = jdbc;
         this.carModelRepository = carModelRepository;
-    }
-
-    public List<Car> findAll() {
-        final String sql = "SELECT * FROM cars";
-        return jdbc.query(sql, carRowMapper);
     }
 
     public Optional<Car> findById(Long id) {
@@ -64,6 +60,8 @@ public class CarRepository {
     """;
         return jdbc.query(sql, carRowMapper, endDate, startDate);
     }
+
+    @Transactional
     public CarModel findCarModelByCarId(final Id carId) {
         final String sql = "SELECT car_model_id FROM cars WHERE id = ?";
 

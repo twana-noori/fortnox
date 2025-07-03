@@ -13,6 +13,7 @@ import com.example.fortnox.repositories.CarRepository;
 import com.example.fortnox.repositories.RentalRepository;
 import com.example.fortnox.utils.PriceCalculator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -48,6 +49,7 @@ public class RentalService {
                 .orElse(List.of());
     }
 
+    @Transactional
     public long createRental(final CreateRental createRental) {
         final CarModel carModel = carRepository.findCarModelByCarId(createRental.carId());
         final BigDecimal revenue = calculateCost(carModel, createRental.rentalPeriod(), createRental.bookingType());

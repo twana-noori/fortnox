@@ -29,5 +29,5 @@ public interface RentalApi {
             @RequestParam(name = "carModelId", required = false) final Long carModelId);
 
     @PostMapping(RENT)
-    ResponseEntity<?> rent(@RequestBody final RentalRequest request);
+    ResponseEntity<String> rent(@RequestBody final RentalRequest request);
 }

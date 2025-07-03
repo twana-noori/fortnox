@@ -48,7 +48,7 @@ public class RentalController implements RentalApi {
     }
 
     @Override
-    public ResponseEntity<?> rent(final RentalRequest request) {
+    public ResponseEntity<String> rent(final RentalRequest request) {
         final var createRentals = validationService.validateRental(request);
         if (createRentals.isInvalid()) {
             return ResponseEntity.badRequest().body(createRentals.getError());
