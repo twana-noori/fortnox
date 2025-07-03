@@ -5,11 +5,15 @@ import com.example.fortnox.controller.request.RentalRequest;
 import com.example.fortnox.controller.request.UserRequest;
 import io.vavr.control.Validation;
 import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+@ActiveProfiles("test")
+@SpringBootTest
 class ValidationServiceTest {
 
     private final ValidationService validationService = new ValidationService();

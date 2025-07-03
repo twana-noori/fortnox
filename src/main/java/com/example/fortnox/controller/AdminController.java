@@ -16,7 +16,6 @@ public class AdminController implements AdminApi {
 
     @Override
     public ResponseEntity<AdminRentalResponse> getAllRentals() {
-        final AdminRentalResponse adminRentalResponse = ResponseMapper.mapRentalToResponse(rentalService.getAllRentals());
-        return ResponseEntity.ok(adminRentalResponse);
+        return ResponseEntity.ok(rentalService.getAllRentals());
     }
 }

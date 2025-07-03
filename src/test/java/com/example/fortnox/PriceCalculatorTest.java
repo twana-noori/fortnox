@@ -12,6 +12,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -21,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
+@ActiveProfiles("test")
 @SpringBootTest
 class PriceCalculatorTest {
 
@@ -41,7 +43,6 @@ class PriceCalculatorTest {
         period2.setEnd(LocalDate.of(2026, 1, 5));
         highSeason.setPeriods(List.of(period, period2));
     }
-
 
     @Test
     void testChoosePricePeriod_HighSeason() {

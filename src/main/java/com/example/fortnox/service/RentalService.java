@@ -1,12 +1,15 @@
 package com.example.fortnox.service;
 
+import com.example.fortnox.controller.ResponseMapper;
+import com.example.fortnox.controller.response.AdminRentalResponse;
+import com.example.fortnox.controller.response.CarModelResponse;
+import com.example.fortnox.controller.response.CarResponse;
 import com.example.fortnox.domain.BookingType;
 import com.example.fortnox.domain.Car;
 import com.example.fortnox.domain.CarModel;
 import com.example.fortnox.domain.CarPricePeriod;
 import com.example.fortnox.domain.CreateRental;
 import com.example.fortnox.domain.Id;
-import com.example.fortnox.domain.Rental;
 import com.example.fortnox.domain.RentalPeriod;
 import com.example.fortnox.repositories.CarModelRepository;
 import com.example.fortnox.repositories.CarRepository;
@@ -36,17 +39,31 @@ public class RentalService {
         this.priceCalculator = priceCalculator;
     }
 
-    public List<CarModel> getAllModels() {
-        return carModelRepository.findAll();
+    public List<CarModelResponse> getAllModels() {
+        return carModelRepository.findAll().stream()
+                .map(ResponseMapper::mapCarModelToResponse)
+                .toList();
     }
 
-    public List<Car> getAvailableCars(final RentalPeriod rentalPeriod, final Id carModelId) {
+    public List<CarResponse> getAvailableCars(final RentalPeriod rentalPeriod, final Id carModelId) {
+        final List<Car> cars;
         if (carModelId == null) {
-            return carRepository.findAllAvailableCars(rentalPeriod.startDate().date(), rentalPeriod.endDate().date());
+            cars = carRepository.findAllAvailableCars(
+                    rentalPeriod.startDate().date(),
+                    rentalPeriod.endDate().date()
+            );
+        } else {
+            cars = carModelRepository.findById(carModelId.value())
+                    .map(carModel -> carRepository.findAvailableCarsByModel(
+                            rentalPeriod.startDate().date(),
+                            rentalPeriod.endDate().date(),
+                            carModel.id()
+                    ))
+                    .orElse(List.of());
         }
-        return carModelRepository.findById(carModelId.value())
-                .map(carModel -> carRepository.findAvailableCarsByModel(rentalPeriod.startDate().date(), rentalPeriod.endDate().date(), carModel.id()))
-                .orElse(List.of());
+        return cars.stream()
+                .map(ResponseMapper::mapCarToResponse)
+                .toList();
     }
 
     @Transactional
@@ -56,8 +73,8 @@ public class RentalService {
         return rentalRepository.saveRental(createRental, revenue);
     }
 
-    public List<Rental> getAllRentals() {
-        return rentalRepository.getAllRentals();
+    public AdminRentalResponse getAllRentals() {
+        return ResponseMapper.mapRentalToResponse(rentalRepository.getAllRentals());
     }
 
     private BigDecimal calculateCost(final CarModel carModel, final RentalPeriod rentalPeriod, final BookingType bookingType) {

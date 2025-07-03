@@ -16,11 +16,10 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.jdbc.support.KeyHolder;
 import org.springframework.stereotype.Repository;
-import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
-import java.sql.Date;
+import java.math.RoundingMode;
 import java.sql.PreparedStatement;
 import java.util.List;
 import java.util.Objects;
@@ -54,51 +53,51 @@ public class RentalRepository {
         }
     }
 
-    @Transactional(isolation = Isolation.SERIALIZABLE)
-    public Long saveRental(final CreateRental createRental,
-                           final BigDecimal revenue) {
+    @Transactional
+    public Long saveRental(CreateRental cmd, BigDecimal revenue) {
 
-        final String duplicateSql = """
-                    SELECT COUNT(*) FROM rental
-                    WHERE car_id = ?
-                      AND start_date <= ?
-                      AND end_date >= ?
-                """;
-
-        final Integer duplicates = jdbc.queryForObject(duplicateSql, Integer.class,
-                createRental.carId().value(),
-                Date.valueOf(createRental.rentalPeriod().endDate().date()),
-                Date.valueOf(createRental.rentalPeriod().startDate().date())
-        );
-
-        if (duplicates != null && duplicates > 0) {
-            throw new RentalException("Car is already rented during this period.");
-        }
-        final User user = userRepository.findById(createRental.user().id().value())
+        User user = userRepository.findById(cmd.user().id().value())
                 .orElseThrow(() -> new UserNotFoundException("User not found"));
 
-        final String sql = """
-                    INSERT INTO rental (car_id, user_id, start_date, end_date, revenue, booking_type)
-                    VALUES (?, ?, ?, ?, ?, ?)
-                """;
+        jdbc.queryForObject(
+                "SELECT id FROM cars WHERE id = ? FOR UPDATE",
+                Long.class,
+                cmd.carId().value());
 
-        KeyHolder keyHolder = new GeneratedKeyHolder();
-        try {
-            jdbc.update(con -> {
-                PreparedStatement ps = con.prepareStatement(sql, new String[]{"id"});
-                ps.setLong(1, createRental.carId().value());
-                ps.setLong(2, user.id().value());
-                ps.setString(3, String.valueOf(createRental.rentalPeriod().startDate().date()));
-                ps.setString(4, String.valueOf(createRental.rentalPeriod().endDate().date()));
-                ps.setBigDecimal(5, revenue);
-                ps.setString(6, createRental.bookingType().name());
-                return ps;
-            }, keyHolder);
-        } catch (DataAccessException e) {
-            throw new RentalException("Could not save rental: " + e.getMessage());
+        Integer overlaps = jdbc.queryForObject("""
+            SELECT COUNT(*) FROM rental
+            WHERE car_id = ?
+              AND start_date < ?
+              AND end_date   > ?
+            """,
+                Integer.class,
+                cmd.carId().value(),
+                cmd.rentalPeriod().endDate().date(),
+                cmd.rentalPeriod().startDate().date());
+
+        if (overlaps != null && overlaps > 0) {
+            throw new RentalException("Car is already rented during this period");
         }
 
-        return Objects.requireNonNull(keyHolder.getKey()).longValue();
+        KeyHolder key = new GeneratedKeyHolder();
+        jdbc.update(con -> {
+            PreparedStatement ps = con.prepareStatement(
+                    """
+                    INSERT INTO rental (car_id, user_id, start_date, end_date,
+                                        revenue, booking_type)
+                    VALUES (?, ?, ?, ?, ?, ?)
+                    """,
+                    new String[] { "id" });
+            ps.setLong   (1, cmd.carId().value());
+            ps.setLong   (2, user.id().value());
+            ps.setObject (3, cmd.rentalPeriod().startDate().date());
+            ps.setObject (4, cmd.rentalPeriod().endDate().date());
+            ps.setBigDecimal(5, revenue.setScale(2, RoundingMode.HALF_UP));
+            ps.setString (6, cmd.bookingType().name());
+            return ps;
+        }, key);
+
+        return Objects.requireNonNull(key.getKey()).longValue();
     }
 
 

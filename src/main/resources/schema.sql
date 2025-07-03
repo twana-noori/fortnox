@@ -1,29 +1,35 @@
--- USER
+SET FOREIGN_KEY_CHECKS = 0;
+
+DROP TABLE IF EXISTS rental;
+DROP TABLE IF EXISTS car_price_period;
+DROP TABLE IF EXISTS cars;
+DROP TABLE IF EXISTS car_model;
+DROP TABLE IF EXISTS users;
+
+SET FOREIGN_KEY_CHECKS = 1;
+
 CREATE TABLE IF NOT EXISTS users (
-                                     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                                     id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                      name VARCHAR(255) NOT NULL,
                                      date_of_birth VARCHAR(20) NOT NULL
 );
 
--- CAR_MODEL
 CREATE TABLE IF NOT EXISTS car_model (
-                                         id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                                         id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                          brand VARCHAR(255) NOT NULL,
                                          model VARCHAR(255) NOT NULL,
                                          model_year INT NOT NULL
 );
 
--- CARS
 CREATE TABLE IF NOT EXISTS cars (
-                                    id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                                    id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                     registration_number VARCHAR(50) NOT NULL UNIQUE,
                                     car_model_id BIGINT NOT NULL,
                                     FOREIGN KEY (car_model_id) REFERENCES car_model(id)
 );
 
--- CAR_PRICE_PERIOD
 CREATE TABLE IF NOT EXISTS car_price_period (
-                                                id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                                                id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                                 car_model_id BIGINT NOT NULL,
                                                 price_per_day DECIMAL(10,2) NOT NULL,
                                                 price_type VARCHAR(100),
@@ -32,7 +38,7 @@ CREATE TABLE IF NOT EXISTS car_price_period (
 );
 
 CREATE TABLE IF NOT EXISTS rental (
-                                      id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
+                                      id BIGINT AUTO_INCREMENT PRIMARY KEY,
                                       car_id BIGINT NOT NULL,
                                       user_id BIGINT NOT NULL,
                                       start_date DATE NOT NULL,

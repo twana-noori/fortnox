@@ -22,12 +22,7 @@ public class RentalController implements RentalApi {
 
     @Override
     public ResponseEntity<List<CarModelResponse>> getAllModels() {
-        final List<CarModelResponse> carModels = rentalService.getAllModels()
-                .stream()
-                .map(ResponseMapper::mapCarModelToResponse)
-                .toList();
-
-        return ResponseEntity.ok(carModels);
+        return ResponseEntity.ok(rentalService.getAllModels());
     }
 
     @Override
@@ -39,12 +34,7 @@ public class RentalController implements RentalApi {
             return ResponseEntity.badRequest().body(rentalPeriods.getError());
         }
 
-        return ResponseEntity.ok(
-                rentalService.getAvailableCars(rentalPeriods.get(), carId)
-                        .stream()
-                        .map(ResponseMapper::mapCarToResponse)
-                        .toList()
-        );
+        return ResponseEntity.ok(rentalService.getAvailableCars(rentalPeriods.get(), carId));
     }
 
     @Override
