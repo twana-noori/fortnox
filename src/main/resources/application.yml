@@ -1,0 +1,6 @@
+highseason:
+  periods:
+    - start: 2025-07-01
+      end: 2025-08-31
+    - start: 2025-12-20
+      end: 2026-01-05
