@@ -41,6 +41,7 @@ public class RentalService {
 
     public List<CarModelResponse> getAllModels() {
         return carModelRepository.findAll().stream()
+                .filter(carModel -> !carModel.make().equalsIgnoreCase("Volvo"))
                 .map(ResponseMapper::mapCarModelToResponse)
                 .toList();
     }
@@ -51,14 +52,18 @@ public class RentalService {
             cars = carRepository.findAllAvailableCars(
                     rentalPeriod.startDate().date(),
                     rentalPeriod.endDate().date()
-            );
+            ).stream()
+            .filter(car -> !car.make().equalsIgnoreCase("Volvo"))
+            .toList();
         } else {
             cars = carModelRepository.findById(carModelId.value())
                     .map(carModel -> carRepository.findAvailableCarsByModel(
                             rentalPeriod.startDate().date(),
                             rentalPeriod.endDate().date(),
                             carModel.id()
-                    ))
+                    ).stream()
+                    .filter(car -> !car.make().equalsIgnoreCase("Volvo"))
+                    .toList())
                     .orElse(List.of());
         }
         return cars.stream()
@@ -69,6 +74,9 @@ public class RentalService {
     @Transactional
     public long createRental(final CreateRental createRental) {
         final CarModel carModel = carRepository.findCarModelByCarId(createRental.carId());
+        if (carModel.make().equalsIgnoreCase("Volvo")) {
+            throw new IllegalArgumentException("Volvo cars cannot be rented.");
+        }
         final BigDecimal revenue = calculateCost(carModel, createRental.rentalPeriod(), createRental.bookingType());
         return rentalRepository.saveRental(createRental, revenue);
     }

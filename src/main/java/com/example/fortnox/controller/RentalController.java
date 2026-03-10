@@ -44,7 +44,17 @@ public class RentalController implements RentalApi {
             return ResponseEntity.badRequest().body(createRentals.getError());
         }
 
+        if (isVolvoCar(createRentals.get().carId())) {
+            return ResponseEntity.badRequest().body("Volvo cars cannot be rented.");
+        }
+
         final long bookingId = rentalService.createRental(createRentals.get());
         return ResponseEntity.ok("Successfully saved booking. BookingId: " + bookingId);
+    }
+
+    private boolean isVolvoCar(Long carId) {
+        // Logic to determine if the car is a Volvo
+        // This method should interact with the RentalService or CarRepository to check the car make
+        return rentalService.isCarVolvo(carId);
     }
 }
