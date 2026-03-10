@@ -48,13 +48,13 @@ public class RentalService {
     public List<CarResponse> getAvailableCars(final RentalPeriod rentalPeriod, final Id carModelId) {
         final List<Car> cars;
         if (carModelId == null) {
-            cars = carRepository.findAllAvailableCars(
+            cars = carRepository.findAllAvailableCarsExcludingVolvo(
                     rentalPeriod.startDate().date(),
                     rentalPeriod.endDate().date()
             );
         } else {
             cars = carModelRepository.findById(carModelId.value())
-                    .map(carModel -> carRepository.findAvailableCarsByModel(
+                    .map(carModel -> carRepository.findAvailableCarsByModelExcludingVolvo(
                             rentalPeriod.startDate().date(),
                             rentalPeriod.endDate().date(),
                             carModel.id()
