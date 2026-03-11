@@ -1,0 +1,15 @@
+model Motorcycle {
+  id          Int      @id @default(autoincrement())
+  model       String
+  availability Boolean  @default(true)
+}
+
+model Rental {
+  id          Int      @id @default(autoincrement())
+  startDate   DateTime
+  endDate     DateTime
+  motorcycle  Motorcycle? @relation(fields: [motorcycleId], references: [id])
+  motorcycleId Int?
+  car         Car?      @relation(fields: [carId], references: [id])
+  carId       Int?
+}
